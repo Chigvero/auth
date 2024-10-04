@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+
 	desc "github.com/Chigvero/auth/pkg/auth_v1"
 	"github.com/brianvoe/gofakeit"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
-	"net"
 )
 
 const (
@@ -36,7 +37,7 @@ func main() {
 	}
 }
 
-func (s *server) Create(ctx context.Context, r *desc.CreateRequest) (*desc.CreateResponse, error) {
+func (s *server) Create(_ context.Context, r *desc.CreateRequest) (*desc.CreateResponse, error) {
 	log.Println(desc.CreateRequest{
 		Name:            r.GetName(),
 		Email:           r.GetEmail(),
@@ -49,7 +50,7 @@ func (s *server) Create(ctx context.Context, r *desc.CreateRequest) (*desc.Creat
 	}, nil
 }
 
-func (s *server) Get(ctx context.Context, r *desc.GetRequest) (*desc.GetResponse, error) {
+func (s *server) Get(_ context.Context, r *desc.GetRequest) (*desc.GetResponse, error) {
 	log.Println("id:", r.GetId())
 	return &desc.GetResponse{
 		Id:        gofakeit.Int64(),
@@ -61,7 +62,7 @@ func (s *server) Get(ctx context.Context, r *desc.GetRequest) (*desc.GetResponse
 	}, nil
 }
 
-func (s *server) Update(ctx context.Context, r *desc.UpdateRequest) (*empty.Empty, error) {
+func (s *server) Update(_ context.Context, r *desc.UpdateRequest) (*empty.Empty, error) {
 	log.Println(desc.UpdateRequest{
 		Id:    r.GetId(),
 		Name:  r.GetName(),
@@ -70,7 +71,7 @@ func (s *server) Update(ctx context.Context, r *desc.UpdateRequest) (*empty.Empt
 	return &empty.Empty{}, nil
 }
 
-func (s *server) Delete(ctx context.Context, r *desc.DeleteRequest) (*empty.Empty, error) {
+func (s *server) Delete(_ context.Context, r *desc.DeleteRequest) (*empty.Empty, error) {
 	log.Println("id: ", r.GetId())
 	return &empty.Empty{}, nil
 }
