@@ -24,8 +24,8 @@ jobs:
 
       - name: Configure Docker to use insecure registry
         run: |
-          echo '{ "exec-opts": ["native.cgroupdriver=systemd"], "insecure-registries":["cr.selcloud.ru/chigvero"] }' | sudo tee /etc/docker/daemon.json
-          sudo systemctl restart docker
+            echo '{ "exec-opts": ["native.cgroupdriver=systemd"], "insecure-registries":["cr.selcloud.ru/chigvero"] }' | sudo tee /etc/docker/daemon.json
+            sudo systemctl restart docker
 
       - name: Check Docker configuration
         run: cat /etc/docker/daemon.json
