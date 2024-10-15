@@ -23,12 +23,9 @@ jobs:
         uses: docker/setup-buildx-action@v3.7.1
 
       - name: Login to Github Container Registry
-        env:
-          DOCKER_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.SSHKEY }}
         run: |
-          echo $DOCKER_PASSWORD | docker login $REGISTRY -u $DOCKER_USERNAME --password-stdin
-          
+          docker login  -u ${{ secrets.REGISTRY_USERNAME }} -p ${{secrets.SSHKEY}}  ${{env.REGISTRY}}
+
 
       - name:  Build and Push Docker Image
         uses: docker/build-push-action@v6.9.0
