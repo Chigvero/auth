@@ -44,12 +44,12 @@ jobs:
 
       - name: Run SSH command
         run: |
-          ssh root@31.129.63.115 '
+          ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa root@222.118.223.15 "
             docker pull $REGISTRY/$IMAGE_NAME:latest
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
             docker run -d --name $CONTAINER_NAME $REGISTRY/$IMAGE_NAME:latest
-          '
+          "
         env:
           REGISTRY: cr.selcloud.ru/chigvero
           IMAGE_NAME: auth_image
