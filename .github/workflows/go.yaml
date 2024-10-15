@@ -23,13 +23,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.7.1
 
       - name: Login to Github Container Registry
-        uses: |
-          docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
-          cat ~/.docker/config.json
-        with:
-          registry: ${{env.REGISTRY}}
-          username: ${{secrets.REGISTRY_USERNAME}}
-          password: ${{ secrets.SSHKEY }}
+        run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
 
       - name:  Build and Push Docker Image
         uses: docker/build-push-action@v6.9.0
