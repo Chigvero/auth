@@ -45,4 +45,7 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME
           script: |
-            mkdir 1
+            docker pull $REGISTRY/$IMAGE_NAME:latest
+            docker stop $CONTAINER_NAME || true
+            docker rm $CONTAINER_NAME || true
+            docker run -d --name $CONTAINER_NAME $REGISTRY/$IMAGE_NAME:latest
