@@ -26,8 +26,9 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.SSHKEY }}
-          run: |
-            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          
 
       - name:  Build and Push Docker Image
         uses: docker/build-push-action@v6.9.0
