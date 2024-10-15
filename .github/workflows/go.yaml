@@ -39,15 +39,15 @@ jobs:
     steps:
       - name: Debug SSH key
         run: |
-          echo "SSH_USERNAME: ${{ secrets.SSH_USERNAME }}"
-          echo "SERVER_HOST: ${{ secrets.SERVER_HOST }}"
+          echo root
+          echo 31.129.63.115
           echo "SSHKEY: ${{ secrets.SSHKEY }}"
 
       - name: Deploy to Selectel Cloud via SSH action
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 31.129.63.115
-          username: "root"
+          host: ${{secret.SERVER_HOST}}
+          username: ${{ secrets.SSH_USERNAME }}"
           key: ${{secrets.SSHKEY}}
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME
           script: |
