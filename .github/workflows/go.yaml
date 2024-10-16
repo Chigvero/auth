@@ -47,11 +47,10 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME
           script: |
             # Set up variables
-            TAG_NAME=$latest
             # Login into Selectel Registry
             docker login  -u ${{ secrets.REGISTRY_USERNAME }} -p ${{secrets.REGISTRY_PASSWORD}}  ${{env.REGISTRY}}
             
             
             
             # Run a new container from a new image
-            docker run -d -p 50051:50051 --name $CONTAINER_NAME -t ${{env.REGISTRY}}/${{env.IMAGE_NAME}}:latest:$TAG_NAME
+            docker run -d -p 50051:50051 --name $CONTAINER_NAME -t ${{env.REGISTRY}}/${{env.IMAGE_NAME}}:latest
