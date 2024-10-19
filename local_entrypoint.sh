@@ -1,3 +1,3 @@
 #!/bin/bash
 ./authServer -config-path ./local.env &
-sleep 5
+sleep 1
