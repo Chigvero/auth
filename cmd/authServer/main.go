@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"flag"
 	"github.com/Chigvero/auth/internal/api"
+	"github.com/Chigvero/auth/internal/config"
+	"github.com/Chigvero/auth/internal/config/env"
 	"github.com/Chigvero/auth/internal/repository"
 	"github.com/Chigvero/auth/internal/service"
 	"github.com/jackc/pgx/v5"
@@ -15,18 +17,47 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-const (
-	grpcHost = "localhost:"
-	grpcPort = 50051
-)
+var configPath string
+
+func init() {
+	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
+}
 
 func main() {
 	ctx := context.Background()
-	conn, err := pgx.Connect(ctx, "host=localhost port=54331 user=user dbname=user-db password=user-password sslmode=disable")
+	//Configs
+	flag.Parse()
+	err := config.Load(configPath)
+	if err != nil {
+		log.Fatalf("error with load config file:%v", err)
+	}
+	dsn, err := env.NewpgConfig()
+	if err != nil {
+		log.Fatalf("failed to get grpcConfig:%v", err)
+	}
+	grpcConfig, err := env.NewGRPCConfig()
+	if err != nil {
+		log.Fatalf("failed to get grpcConfig:%v", err)
+	}
+	//Configs
+	//DB
+	conn, err := pgx.Connect(ctx, dsn.DSN())
+	if err != nil {
+		log.Fatalf("failed to connect DB:%v", err)
+	}
+	err = conn.Ping(ctx)
+	if err != nil {
+		log.Fatalf("failed to ping:%v", err)
+	}
+	//DB
+	//Слои
 	repos := repository.NewRepository(conn)
 	services := service.NewService(repos)
 	server := api.NewImplementation(services)
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s%d", grpcHost, grpcPort))
+	//Слои
+
+	//
+	lis, err := net.Listen("tcp", grpcConfig.Address())
 	if err != nil {
 		log.Fatalf("Error with listening port:%v\n", err)
 	}
@@ -38,5 +69,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to serve:%v", err)
 	}
-
+	//
 }
