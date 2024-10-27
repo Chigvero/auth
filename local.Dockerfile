@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine3.20 as builder
+FROM golang:1.23-alpine3.20 AS builder
 
 WORKDIR /github.com/Chigvero/source
 COPY . /github.com/Chigvero/source

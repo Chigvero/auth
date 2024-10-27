@@ -13,6 +13,8 @@ services:
       - "54331:5432"
     volumes:
       - postgres_volume_local:/var/lib/postgresql/data
+    networks:
+      - authNetworkLocal
 
   pg-prod:
     image: postgres:14-alpine3.20
@@ -26,10 +28,12 @@ services:
   migrator-local:
     build:
       context: .
-      dockerfile: migration_local1.Dockerfile
+      dockerfile: migration_local.Dockerfile
     restart: on-failure
     environment:
       DB_HOST: pg-local
+    networks:
+      - authNetworkLocal
 
   migrator-prod:
     build:
@@ -38,3 +42,19 @@ services:
     restart: on-failure
     environment:
       DB_HOST: pg-prod
+
+  auth-local:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    restart: on-failure
+    ports:
+      - "50060:50060"
+    env_file:
+      - local.env
+    networks:
+      - authNetworkLocal
+
+
+networks:
+  authNetworkLocal:

@@ -64,7 +64,7 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 	desc.RegisterUserV1Server(s, server)
-	log.Println("Server started on port:")
+	log.Println("Server started on port:", grpcConfig.Address())
 	err = s.Serve(lis)
 	if err != nil {
 		log.Fatalf("failed to serve:%v", err)
