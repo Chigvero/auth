@@ -54,8 +54,9 @@ services:
       - authNetworkLocal
 
   auth-prod:
+    depends_on:
+      - pg-prod
     image: cr.selcloud.ru/chigvero/auth_image:latest
-    restart: on-failure
     ports:
       - "50060:50060"
     env_file:
