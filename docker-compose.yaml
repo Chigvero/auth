@@ -36,9 +36,7 @@ services:
       - authNetworkLocal
 
   migrator-prod:
-    build:
-      context: .
-      dockerfile: migration_prod.Dockerfile
+    image: cr.selcloud.ru/chigvero/migrator_image:latest
     restart: on-failure
     environment:
       DB_HOST: pg-prod
@@ -47,6 +45,16 @@ services:
     build:
       context: .
       dockerfile: local.Dockerfile
+    restart: on-failure
+    ports:
+      - "50060:50060"
+    env_file:
+      - local.env
+    networks:
+      - authNetworkLocal
+
+  auth-prod:
+    image: cr.selcloud.ru/chigvero/auth_image:latest
     restart: on-failure
     ports:
       - "50060:50060"

@@ -8,7 +8,8 @@ on:
 
 env:
   REGISTRY: "cr.selcloud.ru/chigvero"
-  IMAGE_NAME: "auth_image"
+  AUTH_IMAGE_NAME: "auth_image"
+  MIGRATOR_IMAGE_NAME: "migrator_image"
   CONTAINER_NAME: "authService"
 
 
@@ -27,13 +28,21 @@ jobs:
           docker login  -u ${{ secrets.REGISTRY_USERNAME }} -p ${{secrets.REGISTRY_PASSWORD}}  ${{env.REGISTRY}}
 
 
-      - name:  Build and Push Docker Image
+      - name:  Build and Push Docker Auth Image
         uses: docker/build-push-action@v6.9.0
         with:
           context: .
           file: prod.Dockerfile
           push: true
-          tags: ${{env.REGISTRY}}/${{env.IMAGE_NAME}}:v01
+          tags: ${{env.REGISTRY}}/${{env.AUTH_IMAGE_NAME}}:latest
+
+      - name: Build and Push Migrator Image
+        uses: docker/build-push-action@v6.9.0
+        with:
+          context: .
+          file: migration_prod.Dockerfile
+          push: true
+          tags: ${{env.REGISTRY}}/${{env.MIGRATOR_IMAGE_NAME}}:latest
 
   deploy-image:
     runs-on: ubuntu-latest
@@ -59,4 +68,4 @@ jobs:
             docker rm $CONTAINER_NAME
             
             # Run a new container from a new image
-            docker run -d -p 50050:50051 --name $CONTAINER_NAME -t ${{env.REGISTRY}}/${{env.IMAGE_NAME}}:latest
+            docker run -d -p 50050:50051 --name $CONTAINER_NAME -t ${{env.REGISTRY}}/${{env.AUTH_IMAGE_NAME}}:latest
