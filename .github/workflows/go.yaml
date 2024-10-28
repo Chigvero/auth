@@ -10,8 +10,8 @@ env:
   REGISTRY: "cr.selcloud.ru/chigvero"
   AUTH_IMAGE_NAME: "auth_image"
   MIGRATOR_IMAGE_NAME: "migrator_image"
-  AUTH_CONTAINER_NAME: "authService"
-  _CONTAINER_NAME: "authService"
+  AUTH_CONTAINER_NAME: "auth-prod"
+  PG_CONTAINER_NAME: "pg-rod"
 
 
 jobs:
@@ -62,11 +62,21 @@ jobs:
             # Login into Selectel Registry
             docker login  -u ${{ secrets.REGISTRY_USERNAME }} -p ${{secrets.REGISTRY_PASSWORD}}  ${{env.REGISTRY}}
             
-            # Stop running container
-            docker stop ${{env.AUTH_CONTAINER_NAME}}
+            # Stop running container and deleting old docker-compose file
+            docker  compose stop ${{env.AUTH_CONTAINER_NAME}} ${{env.PG_CONTAINER_NAME}}
+            rm -rf docker-compose.yaml prod.env
             
-            # Remove old container
-            docker rm ${{env.AUTH_CONTAINER_NAME}}
+            # removing old containers
+            docker rm $(docker ps -aq)
             
-            # Run a new container from a new image
-            docker run -d -p 50050:50051 --name ${{env.AUTH_CONTAINER_NAME}} -t ${{env.REGISTRY}}/${{env.AUTH_IMAGE_NAME}}:latest
+            # removing old  images
+            docker rmi $(docker images -aq)
+           
+            # Copy docker compose to server
+            scp ./../../docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/
+            scp ./../../prod.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/
+            
+            #Running containers
+            docker compose up auth-prod migrator-prod pg-prod 
+            
+            
