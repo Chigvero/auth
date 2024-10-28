@@ -10,7 +10,6 @@ env:
   REGISTRY: "cr.selcloud.ru/chigvero"
   AUTH_IMAGE_NAME: "auth_image"
   MIGRATOR_IMAGE_NAME: "migrator_image"
-  CONTAINER_NAME: "authService"
 
 
 jobs:
