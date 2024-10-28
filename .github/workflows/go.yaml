@@ -10,6 +10,8 @@ env:
   REGISTRY: "cr.selcloud.ru/chigvero"
   AUTH_IMAGE_NAME: "auth_image"
   MIGRATOR_IMAGE_NAME: "migrator_image"
+  AUTH_CONTAINER_NAME: "authService"
+  _CONTAINER_NAME: "authService"
 
 
 jobs:
@@ -61,10 +63,10 @@ jobs:
             docker login  -u ${{ secrets.REGISTRY_USERNAME }} -p ${{secrets.REGISTRY_PASSWORD}}  ${{env.REGISTRY}}
             
             # Stop running container
-            docker stop $CONTAINER_NAME
+            docker stop $AUTH_CONTAINER_NAME
             
             # Remove old container
-            docker rm $CONTAINER_NAME
+            docker rm $AUTH_CONTAINER_NAME
             
             # Run a new container from a new image
             docker run -d -p 50050:50051 --name $CONTAINER_NAME -t ${{env.REGISTRY}}/${{env.AUTH_IMAGE_NAME}}:latest
