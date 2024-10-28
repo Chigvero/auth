@@ -63,10 +63,10 @@ jobs:
             docker login  -u ${{ secrets.REGISTRY_USERNAME }} -p ${{secrets.REGISTRY_PASSWORD}}  ${{env.REGISTRY}}
             
             # Stop running container
-            docker stop $AUTH_CONTAINER_NAME
+            docker stop ${{env.AUTH_CONTAINER_NAME}}
             
             # Remove old container
-            docker rm $AUTH_CONTAINER_NAME
+            docker rm ${{env.AUTH_CONTAINER_NAME}}
             
             # Run a new container from a new image
-            docker run -d -p 50050:50051 --name $AUTH_CONTAINER_NAME -t ${{env.REGISTRY}}/${{env.AUTH_IMAGE_NAME}}:latest
+            docker run -d -p 50050:50051 --name ${{env.AUTH_CONTAINER_NAME}} -t ${{env.REGISTRY}}/${{env.AUTH_IMAGE_NAME}}:latest
