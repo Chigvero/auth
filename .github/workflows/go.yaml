@@ -63,14 +63,14 @@ jobs:
             docker login  -u ${{ secrets.REGISTRY_USERNAME }} -p ${{secrets.REGISTRY_PASSWORD}}  ${{env.REGISTRY}}
             
             # Stop running container and deleting old docker-compose file
-            docker  compose stop ${{env.AUTH_CONTAINER_NAME}} ${{env.PG_CONTAINER_NAME}}
-            rm -rf docker-compose.yaml prod.env
+            docker  compose stop ${{env.AUTH_CONTAINER_NAME}} ${{env.PG_CONTAINER_NAME}} || true
+            rm -rf docker-compose.yaml prod.env || true
             
             # removing old containers
-            docker rm $(docker ps -aq)
+            docker rm $(docker ps -aq) || true
             
             # removing old  images
-            docker rmi $(docker images -aq)
+            docker rmi $(docker images -aq) || true
            
             # Copy docker compose to server
             scp docker-compose.yaml  ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/auth
