@@ -73,10 +73,9 @@ jobs:
             docker rmi $(docker images -aq)
            
             # Copy docker compose to server
-            scp ./../../docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/
-            scp ./../../prod.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/
+            scp docker-compose.yaml  ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/auth
+            scp prod.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/auth
             
             #Running containers
             docker compose up auth-prod migrator-prod pg-prod 
-            
             
