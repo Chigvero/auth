@@ -118,6 +118,7 @@ jobs:
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
             cd /home/auth
+            la
             chmod +x run_containers.sh
             ./run_containers.sh
 
