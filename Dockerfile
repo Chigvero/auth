@@ -1,7 +1,7 @@
 FROM golang:1.23-alpine3.20 as builder
 
 WORKDIR /github.com/Chigvero/source
-COPY . /github.com/Chigvero/source
+COPY .. /github.com/Chigvero/source
 
 RUN go mod tidy
 RUN go mod download
