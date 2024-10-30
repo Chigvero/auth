@@ -12,7 +12,7 @@ env:
   MIGRATOR_IMAGE_NAME: "migrator_image"
   AUTH_CONTAINER_NAME: "auth-prod"
   PG_CONTAINER_NAME: "pg-rod"
-
+  MG_CONTAINER_NAME: "migrator-prod"
 
 jobs:
   image-build-and-push:
@@ -107,3 +107,13 @@ jobs:
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
             # Stop running container and deleting old docker-compose file
+            docker compose stop ${{ env.AUTH_CONTAINER_NAME }} || true
+
+            # removing old containers
+            docker rm $(docker ps -aq) || true
+
+            # removing old images
+            docker rmi $(docker images -aq) || true
+
+            # Running containers
+            docker compose up ${{ env.AUTH_CONTAINER_NAME }} ${{ env.MG_CONTAINER_NAME }}
