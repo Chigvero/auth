@@ -83,6 +83,17 @@ jobs:
           scp -i private_key.pem -o StrictHostKeyChecking=no docker-compose.yaml ${SSH_USERNAME}@${SERVER_HOST}:/home/auth
           rm private_key.pem
 
+      - name: Transfer script.sh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSHKEY }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          scp -i private_key.pem -o StrictHostKeyChecking=no script.sh ${SSH_USERNAME}@${SERVER_HOST}:/home/auth
+          rm private_key.pem
+
       - name: Transfer prod.env
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSHKEY }}
@@ -106,22 +117,8 @@ jobs:
             # Login into Selectel Registry
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
-            # Stop running container and deleting old docker-compose file
-            if [ -f /home/auth/docker-compose.yaml ]; then
-              docker compose -f /home/auth/docker-compose.yaml stop ${{ env.AUTH_CONTAINER_NAME }} ${{ env.PG_CONTAINER_NAME }} || true
-            fi
+           
+            chmod +x run_containers.sh
+            ./run_containers.sh
 
-            # removing old container
-            if [ "$(docker ps -aq)" ]; then
-              docker rm $(docker ps -aq) || true
-            fi
-
-            # removing old images
-            if [ "$(docker images -aq)" ]; then
-              docker rmi $(docker images -aq) || true
-            fi
-
-            # Running containers
-            if [ -f /home/auth/docker-compose.yaml ]; then
-              docker compose -f /home/auth/docker-compose.yaml up -d ${{ env.AUTH_CONTAINER_NAME }} ${{ env.PG_CONTAINER_NAME }}
-            fi
+            
