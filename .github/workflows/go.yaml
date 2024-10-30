@@ -107,13 +107,21 @@ jobs:
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
             # Stop running container and deleting old docker-compose file
-            docker compose stop ${{ env.AUTH_CONTAINER_NAME }} || true
+            if [ -f /home/auth/docker-compose.yaml ]; then
+              docker compose -f /home/auth/docker-compose.yaml stop ${{ env.AUTH_CONTAINER_NAME }} ${{ env.PG_CONTAINER_NAME }} || true
+            fi
 
-            # removing old containers
-            docker rm $(docker ps -aq) || true
+            # removing old container
+            if [ "$(docker ps -aq)" ]; then
+              docker rm $(docker ps -aq) || true
+            fi
 
             # removing old images
-            docker rmi $(docker images -aq) || true
+            if [ "$(docker images -aq)" ]; then
+              docker rmi $(docker images -aq) || true
+            fi
 
             # Running containers
-            docker compose up ${{ env.AUTH_CONTAINER_NAME }} ${{ env.MG_CONTAINER_NAME }}
+            if [ -f /home/auth/docker-compose.yaml ]; then
+              docker compose -f /home/auth/docker-compose.yaml up -d ${{ env.AUTH_CONTAINER_NAME }} ${{ env.PG_CONTAINER_NAME }}
+            fi
