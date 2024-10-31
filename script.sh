@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Остановка контейнера
-docker compose stop ${AUTH_CONTAINER_NAME} || true
+docker compose stop auth-prod || true
 
 # Удаление старых контейнеров
 docker rm $(docker ps -aq) || true
@@ -10,4 +10,4 @@ docker rm $(docker ps -aq) || true
 docker rmi $(docker images -aq) || true
 
 # Запуск контейнеров
-docker compose up ${AUTH_CONTAINER_NAME} ${PG_CONTAINER_NAME} || true
+docker compose up migrator-prod auth-prod  || true
