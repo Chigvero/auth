@@ -10,4 +10,4 @@ docker rm $(docker ps -aq) || true
 docker rmi $(docker images -aq) || true
 
 # Запуск контейнеров
-docker compose up migrator-prod auth-prod  || true
+docker compose up -d migrator-prod auth-prod  || true
