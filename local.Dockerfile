@@ -11,6 +11,4 @@ FROM alpine:3.20
 WORKDIR /root/
 COPY --from=builder  /github.com/Chigvero/source/bin/authServer .
 COPY --from=builder /github.com/Chigvero/source/local.env .
-COPY --from=builder /github.com/Chigvero/source/local_entrypoint.sh .
-RUN chmod +x local_entrypoint.sh
-ENTRYPOINT ["sh","local_entrypoint.sh"]
+ENTRYPOINT ["./authServer","-config-path","local.env"]
