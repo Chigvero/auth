@@ -2,76 +2,72 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"flag"
+	"github.com/Chigvero/auth/internal/api"
+	"github.com/Chigvero/auth/internal/config"
+	"github.com/Chigvero/auth/internal/config/env"
+	"github.com/Chigvero/auth/internal/repository"
+	"github.com/Chigvero/auth/internal/service"
+	"github.com/jackc/pgx/v5"
 	"log"
 	"net"
 
-	desc "github.com/Chigvero/auth/pkg/auth_v1"
-	"github.com/brianvoe/gofakeit"
-	"github.com/golang/protobuf/ptypes/empty"
+	desc "github.com/Chigvero/auth/pkg/user_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const (
-	grpcHost = "localhost:"
-	grpcPort = 50051
-)
+var configPath string
 
-type server struct {
-	desc.UnimplementedAuthV1Server
+func init() {
+	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
 }
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s%d", grpcHost, grpcPort))
+	ctx := context.Background()
+	//Configs
+	flag.Parse()
+	err := config.Load(configPath)
+	if err != nil {
+		log.Fatalf("error with load config file:%v", err)
+	}
+	dsn, err := env.NewpgConfig()
+	if err != nil {
+		log.Fatalf("failed to get grpcConfig:%v", err)
+	}
+	grpcConfig, err := env.NewGRPCConfig()
+	if err != nil {
+		log.Fatalf("failed to get grpcConfig:%v", err)
+	}
+	//Configs
+	//DB
+	conn, err := pgx.Connect(ctx, dsn.DSN())
+	if err != nil {
+		log.Fatalf("failed to connect DB:%v", err)
+	}
+	err = conn.Ping(ctx)
+	if err != nil {
+		log.Fatalf("failed to ping:%v", err)
+	}
+	//DB
+	//Слои
+	repos := repository.NewRepository(conn)
+	services := service.NewService(repos)
+	server := api.NewImplementation(services)
+	//Слои
+
+	//
+	lis, err := net.Listen("tcp", grpcConfig.Address())
 	if err != nil {
 		log.Fatalf("Error with listening port:%v\n", err)
 	}
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterAuthV1Server(s, &server{})
+	desc.RegisterUserV1Server(s, server)
+	log.Println("Server started on port:", grpcConfig.Address())
 	err = s.Serve(lis)
 	if err != nil {
 		log.Fatalf("failed to serve:%v", err)
 	}
-}
-
-func (s *server) Create(_ context.Context, r *desc.CreateRequest) (*desc.CreateResponse, error) {
-	log.Println(desc.CreateRequest{
-		Name:            r.GetName(),
-		Email:           r.GetEmail(),
-		Password:        r.GetPassword(),
-		PasswordConfirm: r.GetPasswordConfirm(),
-		UserType:        r.GetUserType(),
-	})
-	return &desc.CreateResponse{
-		Id: gofakeit.Int64(),
-	}, nil
-}
-
-func (s *server) Get(_ context.Context, r *desc.GetRequest) (*desc.GetResponse, error) {
-	log.Println("id:", r.GetId())
-	return &desc.GetResponse{
-		Id:        gofakeit.Int64(),
-		Name:      gofakeit.BeerName(),
-		Email:     gofakeit.Email(),
-		UserType:  desc.Role_admin,
-		CreatedAt: timestamppb.Now(),
-		UpdatedAt: timestamppb.Now(),
-	}, nil
-}
-
-func (s *server) Update(_ context.Context, r *desc.UpdateRequest) (*empty.Empty, error) {
-	log.Println(desc.UpdateRequest{
-		Id:    r.GetId(),
-		Name:  r.GetName(),
-		Email: r.GetEmail(),
-	})
-	return &empty.Empty{}, nil
-}
-
-func (s *server) Delete(_ context.Context, r *desc.DeleteRequest) (*empty.Empty, error) {
-	log.Println("id: ", r.GetId())
-	return &empty.Empty{}, nil
+	//
 }

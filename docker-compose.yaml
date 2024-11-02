@@ -1,0 +1,76 @@
+version: "3"
+
+
+volumes:
+  postgres_volume_local:
+  postgres_volume_prod:
+
+services:
+
+  pg-prod:
+    image: postgres:14-alpine3.20
+    env_file:
+      - prod.env
+    ports:
+      - "54331:5432"
+    volumes:
+      - postgres_volume_prod:/var/lib/postgresql/data
+    networks:
+      - authNetworkProd
+
+  migrator-prod:
+    depends_on:
+      - pg-prod
+    image: cr.selcloud.ru/chigvero/migrator_image:latest
+    environment:
+      DB_HOST: pg-prod
+    networks:
+      - authNetworkProd
+
+  auth-prod:
+    depends_on:
+      - pg-prod
+    image: cr.selcloud.ru/chigvero/auth_image:latest
+    ports:
+      - "50060:50060"
+    env_file:
+      - prod.env
+    networks:
+      - authNetworkProd
+
+
+  pg-local:
+    image: postgres:14-alpine3.20
+    env_file: "local.env"
+    ports:
+      - "54332:5432"
+    volumes:
+      - postgres_volume_local:/var/lib/postgresql/data
+    networks:
+      - authNetworkLocal
+
+  migrator-local:
+    build:
+      context: .
+      dockerfile: migration_local.Dockerfile
+    restart: on-failure
+    environment:
+      DB_HOST: pg-local
+    networks:
+      - authNetworkLocal
+
+  auth-local:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    restart: on-failure
+    ports:
+      - "50061:50060"
+    env_file:
+      - local.env
+    networks:
+      - authNetworkLocal
+
+networks:
+  authNetworkLocal:
+  authNetworkProd:
